@@ -95,7 +95,6 @@ def _load_weights_with_compat(model: Sequential, weights_path: Path) -> None:
 def load_model() -> Sequential:
     model = Sequential()
 
-    # Conv3D layers - these will use GPU
     model.add(Conv3D(128, 3, input_shape=(75,60,120,1), padding='same'))
     model.add(Activation('relu'))
     model.add(MaxPool3D((1,2,2)))
@@ -110,8 +109,6 @@ def load_model() -> Sequential:
 
     model.add(TimeDistributed(Flatten()))
 
-    # Use RNN wrapper with LSTMCell instead of LSTM layer
-    # This gives you GPU support without CuDNN dependency
     model.add(Bidirectional(RNN(LSTMCell(128), return_sequences=True)))
     model.add(Dropout(.5))
 
