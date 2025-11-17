@@ -22,7 +22,7 @@ def download_dlib_model():
         compressed_path = model_path + ".bz2"
         urllib.request.urlretrieve(model_url, compressed_path)
         
-        # Extract (you'll need bz2 module)
+        # Extract (bz2 module)
         import bz2
         with bz2.open(compressed_path, 'rb') as f_in:
             with open(model_path, 'wb') as f_out:
@@ -162,7 +162,7 @@ def load_data(path: str):
     if path.endswith(('.mp4', '.avi', '.mov', '.mkv', '.webm')):
         video_path = path
     else:
-        # For legacy support with your existing file structure
+        # For legacy support with existing file structure
         file_name = path.split('\\')[-1].split('.')[0]
         video_path = os.path.join('..','data','all',f'{file_name}.mpg')
     
