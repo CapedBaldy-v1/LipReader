@@ -7,7 +7,8 @@ import h5py
 import inspect
 from tensorflow.keras.layers import RNN, LSTMCell
 from tensorflow.keras.models import Sequential 
-from tensorflow.keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional, MaxPool3D, Activation, Reshape, SpatialDropout3D, BatchNormalization, TimeDistributed, Flatten
+from tensorflow.keras.layers import Conv3D, Dense, Dropout, Bidirectional
+from tensorflow.keras.layers import MaxPool3D, Activation, TimeDistributed, Flatten
 from utils import char_to_num
 
 WEIGHTS_FILENAME = "checkpoint.weights.h5"
