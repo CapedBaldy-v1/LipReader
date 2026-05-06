@@ -1,0 +1,16 @@
+numpy
+tensorflow==2.20.0
+# Updated to TensorFlow 2.20.0 for compatibility with current pip repository
+
+ffmpeg-python
+#numpy<2
+#opencv-python
+opencv-python-headless
+#==4.5.5.64
+gdown<6
+imageio
+dlib-bin
+#dlib-19.24.99-cp312-cp312-win_amd64.whl
+matplotlib
+streamlit
+h5py
