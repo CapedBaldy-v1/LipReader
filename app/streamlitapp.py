@@ -113,10 +113,9 @@ st.set_page_config(layout='wide')
 # Setup the sidebar
 with st.sidebar: 
     st.image('https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png')
-    st.title('Lip Reader App')
-    st.info('This application is originally developed from the LipNet deep learning model.')
+    st.title('SWIN-VALLR')
 
-st.title('LipNet Full Stack App') 
+st.title('SWIN-VALLR') 
 
 # Import your custom functions (make sure these are in your deployment)
 try:
@@ -305,6 +304,6 @@ st.sidebar.info("""
 - ImageIO
 - NumPy
 - Streamlit
-- Your model files
-- utils.py & modelutil.py
+- Whisper
+- PyTorch
 """)
