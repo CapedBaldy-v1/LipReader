@@ -101,7 +101,7 @@ def download_dlib_model():
         with bz2.open(compressed_path, 'rb') as f_in:
             with open(model_path, 'wb') as f_out:
                 f_out.write(f_in.read())
-        os.remove(compressed_path)
+        #os.remove(compressed_path)
 download_dlib_model()
 
 # Set the layout to the streamlit app as wide 
