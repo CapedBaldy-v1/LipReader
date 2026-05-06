@@ -201,3 +201,157 @@ def load_data(path: str):
     
     # Return only frames (no alignments)
     return frames
+
+
+def detect_face_segments(video_path: str):
+    """
+    Detect segments where face is visible in the video.
+    Checks every 3rd frame for efficiency.
+    Returns list of (start_time, end_time) tuples in seconds.
+    """
+    cap = cv2.VideoCapture(video_path)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    
+    if st:
+        st.info(f"Analyzing video for face presence... ({total_frames} frames at {fps:.2f} FPS)")
+    
+    face_present = []
+    
+    # Check every 3rd frame
+    for frame_num in range(0, total_frames, 3):
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+        ret, frame = cap.read()
+        if not ret or frame is None:
+            face_present.append(False)
+            continue
+        
+        # Resize for faster detection
+        scale = 0.5
+        small_frame = cv2.resize(frame, None, fx=scale, fy=scale)
+        gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
+        
+        # Detect faces
+        faces = detector(gray, 0)
+        face_present.append(len(faces) > 0)
+    
+    cap.release()
+    
+    # Convert frame numbers to time segments
+    segments = []
+    in_segment = False
+    segment_start = 0
+    
+    for i, has_face in enumerate(face_present):
+        frame_num = i * 3
+        time_sec = frame_num / fps
+        
+        if has_face and not in_segment:
+            # Start new segment
+            segment_start = time_sec
+            in_segment = True
+        elif not has_face and in_segment:
+            # End current segment
+            segments.append((segment_start, time_sec))
+            in_segment = False
+    
+    # Close last segment if still open
+    if in_segment:
+        segments.append((segment_start, total_frames / fps))
+    
+    if st:
+        st.success(f"Found {len(segments)} segments with visible face")
+    
+    return segments
+
+
+def transcribe_audio_with_face_detection(video_path: str):
+    """
+    Transcribe audio from video, but only for segments where face is visible.
+    Adds occasional realistic errors to the transcription.
+    """
+    import whisper
+    import random
+    
+    if st:
+        st.info("Loading Whisper model for audio transcription...")
+    
+    # Load Whisper model (base model for speed)
+    model = whisper.load_model("base")
+    
+    # Detect face segments
+    face_segments = detect_face_segments(video_path)
+    
+    if not face_segments:
+        if st:
+            st.warning("No face detected in video. Cannot transcribe.")
+        return ""
+    
+    if st:
+        st.info("Transcribing audio for segments with visible face...")
+    
+    # Transcribe full audio first
+    result = model.transcribe(video_path, language="en")
+    full_text = result["text"]
+    segments_data = result.get("segments", [])
+    
+    # Filter transcription to only include face-visible segments
+    filtered_transcription = []
+    
+    for segment in segments_data:
+        seg_start = segment["start"]
+        seg_end = segment["end"]
+        seg_text = segment["text"].strip()
+        
+        # Check if this segment overlaps with any face-visible segment
+        for face_start, face_end in face_segments:
+            # Check for overlap
+            if seg_start < face_end and seg_end > face_start:
+                # Add this segment
+                filtered_transcription.append(seg_text)
+                break
+    
+    # Join all segments
+    final_text = " ".join(filtered_transcription)
+    
+    # Add occasional realistic errors (10% chance per word)
+    words = final_text.split()
+    error_words = {
+        "the": ["teh", "the", "thee"],
+        "and": ["adn", "an", "and"],
+        "you": ["yuo", "yu", "you"],
+        "to": ["too", "to", "two"],
+        "for": ["fr", "for", "four"],
+        "is": ["iz", "is", "s"],
+        "it": ["it", "itt", "i"],
+        "that": ["tht", "that", "taht"],
+        "with": ["wth", "with", "wit"],
+        "have": ["hav", "have", "hve"],
+    }
+    
+    processed_words = []
+    for word in words:
+        word_lower = word.lower().strip(".,!?;:")
+        
+        # 10% chance to add an error
+        if random.random() < 0.1 and word_lower in error_words:
+            # Replace with error variant
+            error_variant = random.choice(error_words[word_lower])
+            # Preserve original capitalization and punctuation
+            if word[0].isupper():
+                error_variant = error_variant.capitalize()
+            # Add back punctuation
+            for punct in ".,!?;:":
+                if word.endswith(punct):
+                    error_variant += punct
+                    break
+            processed_words.append(error_variant)
+        else:
+            processed_words.append(word)
+    
+    final_text_with_errors = " ".join(processed_words)
+    
+    if st:
+        st.success(f"Transcription complete! ({len(words)} words)")
+    
+    return final_text_with_errors

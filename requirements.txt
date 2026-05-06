@@ -9,3 +9,6 @@ dlib-bin
 matplotlib
 streamlit
 h5py
+openai-whisper
+torch
+torchaudio

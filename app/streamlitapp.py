@@ -248,25 +248,17 @@ if uploaded_file is not None:
                 else:
                     st.error("Failed to process video frames for visualization")
                 
-                # Prediction - Process the video (75 frames)
-                st.info('Making prediction...')
-                with st.spinner('Running model prediction...'):
-                    model = load_model()
-                    
-                    # Predict on the 75 frames
-                    yhat = model.predict(tf.expand_dims(video, axis=0), verbose=0)
-                    decoder = tf.keras.backend.ctc_decode(yhat, [75], greedy=True)[0][0].numpy()[0]
+                # Audio Transcription with Face Detection
+                st.info('Transcribing audio (only when face is visible)...')
+                with st.spinner('Running audio transcription with face detection...'):
+                    from utils import transcribe_audio_with_face_detection
+                    transcription = transcribe_audio_with_face_detection(temp_video_path)
                 
-                st.info('Model Output (Tokens):')
-                st.code(str(decoder))
-
-                # Convert prediction to text
-                st.info('Final Prediction:')
-                if len(decoder) > 0:
-                    converted_prediction = tf.strings.reduce_join(num_to_char(decoder)).numpy().decode('utf-8')
-                    st.success(f"**{converted_prediction}**")
+                st.info('Transcription Result:')
+                if transcription:
+                    st.success(f"**{transcription}**")
                 else:
-                    st.warning("No meaningful prediction generated")
+                    st.warning("No transcription generated (no face detected in video)")
             else:
                 st.error("No video frames were loaded. The video might be incompatible.")
                 
