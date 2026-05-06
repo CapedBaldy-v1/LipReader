@@ -120,11 +120,27 @@ st.title('LipNet Full Stack App')
 
 # Import your custom functions (make sure these are in your deployment)
 try:
+    # Try relative imports first (for when running from app/ directory)
     from utils import load_data, num_to_char
     from modelutil import load_model
 except ImportError:
-    st.error("Required modules not found. Please ensure utils.py and modelutil.py are in your deployment.")
-    st.stop()
+    try:
+        # Try absolute imports (for when running from root directory)
+        from app.utils import load_data, num_to_char
+        from app.modelutil import load_model
+    except ImportError:
+        # Add current directory to path and try again
+        import sys
+        from pathlib import Path
+        app_dir = Path(__file__).parent
+        if str(app_dir) not in sys.path:
+            sys.path.insert(0, str(app_dir))
+        try:
+            from utils import load_data, num_to_char
+            from modelutil import load_model
+        except ImportError:
+            st.error("Required modules not found. Please ensure utils.py and modelutil.py are in your deployment.")
+            st.stop()
 
 # Convert to viridis colormap
 def prepare_viridis_gif(video_frames):
