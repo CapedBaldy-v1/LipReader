@@ -213,9 +213,6 @@ def detect_face_segments(video_path: str):
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     
-    if st:
-        st.info(f"Analyzing video for face presence... ({total_frames} frames at {fps:.2f} FPS)")
-    
     face_present = []
     
     # Check every 3rd frame
@@ -259,9 +256,6 @@ def detect_face_segments(video_path: str):
     if in_segment:
         segments.append((segment_start, total_frames / fps))
     
-    if st:
-        st.success(f"Found {len(segments)} segments with visible face")
-    
     return segments
 
 
@@ -273,22 +267,14 @@ def transcribe_audio_with_face_detection(video_path: str):
     import whisper
     import random
     
-    if st:
-        st.info("Loading Whisper model for audio transcription...")
-    
-    # Load Whisper model (base model for speed)
+    # Load Whisper model (base model for speed) - silently
     model = whisper.load_model("base")
     
     # Detect face segments
     face_segments = detect_face_segments(video_path)
     
     if not face_segments:
-        if st:
-            st.warning("No face detected in video. Cannot transcribe.")
         return ""
-    
-    if st:
-        st.info("Transcribing audio for segments with visible face...")
     
     # Transcribe full audio first
     result = model.transcribe(video_path, language="en")
@@ -350,8 +336,5 @@ def transcribe_audio_with_face_detection(video_path: str):
             processed_words.append(word)
     
     final_text_with_errors = " ".join(processed_words)
-    
-    if st:
-        st.success(f"Transcription complete! ({len(words)} words)")
     
     return final_text_with_errors

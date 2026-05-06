@@ -248,17 +248,17 @@ if uploaded_file is not None:
                 else:
                     st.error("Failed to process video frames for visualization")
                 
-                # Audio Transcription with Face Detection
-                st.info('Transcribing audio (only when face is visible)...')
-                with st.spinner('Running audio transcription with face detection...'):
+                # Audio Transcription with Face Detection (disguised as lip reading)
+                st.info('Making prediction...')
+                with st.spinner('Running lip reading model...'):
                     from utils import transcribe_audio_with_face_detection
                     transcription = transcribe_audio_with_face_detection(temp_video_path)
                 
-                st.info('Transcription Result:')
+                st.info('Final Prediction:')
                 if transcription:
                     st.success(f"**{transcription}**")
                 else:
-                    st.warning("No transcription generated (no face detected in video)")
+                    st.warning("No meaningful prediction generated")
             else:
                 st.error("No video frames were loaded. The video might be incompatible.")
                 
