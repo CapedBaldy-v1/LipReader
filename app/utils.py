@@ -300,31 +300,41 @@ def transcribe_audio_with_face_detection(video_path: str):
     # Join all segments
     final_text = " ".join(filtered_transcription)
     
-    # Add occasional realistic errors (10% chance per word)
+    # Add occasional realistic errors (15-20% chance per word)
     words = final_text.split()
     error_words = {
-        "the": ["teh", "the", "thee"],
-        "and": ["adn", "an", "and"],
-        "you": ["yuo", "yu", "you"],
-        "to": ["too", "to", "two"],
-        "for": ["fr", "for", "four"],
-        "is": ["iz", "is", "s"],
-        "it": ["it", "itt", "i"],
-        "that": ["tht", "that", "taht"],
-        "with": ["wth", "with", "wit"],
-        "have": ["hav", "have", "hve"],
+        "the": ["teh", "the", "thee", "tthe"],
+        "and": ["adn", "an", "nd", "andd"],
+        "you": ["yuo", "yu", "yoy", "youu"],
+        "to": ["too", "to", "two", "t"],
+        "for": ["fr", "for", "four", "fro"],
+        "is": ["iz", "is", "s", "iss"],
+        "it": ["it", "itt", "i", "iit"],
+        "that": ["tht", "that", "taht", "thatt"],
+        "with": ["wth", "with", "wit", "wih"],
+        "have": ["hav", "have", "hve", "hav"],
+        "are": ["r", "are", "ar", "aree"],
+        "this": ["ths", "this", "thiss", "tis"],
+        "was": ["ws", "was", "wass", "waz"],
+        "not": ["nt", "not", "nott", "no"],
+        "but": ["bt", "but", "butt", "btu"],
+        "can": ["cn", "can", "cann", "ca"],
+        "will": ["wll", "will", "wil", "wil"],
+        "from": ["frm", "from", "form", "fro"],
+        "they": ["thy", "they", "thay", "tey"],
+        "what": ["wht", "what", "wat", "whatt"],
     }
     
     processed_words = []
     for word in words:
         word_lower = word.lower().strip(".,!?;:")
         
-        # 10% chance to add an error
-        if random.random() < 0.1 and word_lower in error_words:
+        # 15-20% chance to add an error (using 17.5% average)
+        if random.random() < 0.175 and word_lower in error_words:
             # Replace with error variant
             error_variant = random.choice(error_words[word_lower])
             # Preserve original capitalization and punctuation
-            if word[0].isupper():
+            if word and word[0].isupper():
                 error_variant = error_variant.capitalize()
             # Add back punctuation
             for punct in ".,!?;:":
