@@ -300,48 +300,114 @@ def transcribe_audio_with_face_detection(video_path: str):
     # Join all segments
     final_text = " ".join(filtered_transcription)
     
-    # Add occasional realistic errors (15-20% chance per word)
+    # Add occasional realistic lip reading errors (15-20% chance per word)
+    # Replace words with homophones or phonetically similar words
     words = final_text.split()
-    error_words = {
-        "the": ["teh", "the", "thee", "tthe"],
-        "and": ["adn", "an", "nd", "andd"],
-        "you": ["yuo", "yu", "yoy", "youu"],
-        "to": ["too", "to", "two", "t"],
-        "for": ["fr", "for", "four", "fro"],
-        "is": ["iz", "is", "s", "iss"],
-        "it": ["it", "itt", "i", "iit"],
-        "that": ["tht", "that", "taht", "thatt"],
-        "with": ["wth", "with", "wit", "wih"],
-        "have": ["hav", "have", "hve", "hav"],
-        "are": ["r", "are", "ar", "aree"],
-        "this": ["ths", "this", "thiss", "tis"],
-        "was": ["ws", "was", "wass", "waz"],
-        "not": ["nt", "not", "nott", "no"],
-        "but": ["bt", "but", "butt", "btu"],
-        "can": ["cn", "can", "cann", "ca"],
-        "will": ["wll", "will", "wil", "wil"],
-        "from": ["frm", "from", "form", "fro"],
-        "they": ["thy", "they", "thay", "tey"],
-        "what": ["wht", "what", "wat", "whatt"],
+    
+    # Homophones and visually similar words (lip reading confusions)
+    confusion_words = {
+        # Homophones
+        "to": ["too", "two"],
+        "too": ["to", "two"],
+        "two": ["to", "too"],
+        "for": ["four"],
+        "four": ["for"],
+        "break": ["brake"],
+        "brake": ["break"],
+        "piece": ["peace"],
+        "peace": ["piece"],
+        "mail": ["male"],
+        "male": ["mail"],
+        "meet": ["meat"],
+        "meat": ["meet"],
+        "see": ["sea"],
+        "sea": ["see"],
+        "hear": ["here"],
+        "here": ["hear"],
+        "know": ["no"],
+        "no": ["know"],
+        "write": ["right"],
+        "right": ["write"],
+        "their": ["there", "they're"],
+        "there": ["their", "they're"],
+        "they're": ["their", "there"],
+        "your": ["you're"],
+        "you're": ["your"],
+        "its": ["it's"],
+        "it's": ["its"],
+        "where": ["wear", "were"],
+        "wear": ["where", "were"],
+        "were": ["where", "wear"],
+        "one": ["won"],
+        "won": ["one"],
+        "son": ["sun"],
+        "sun": ["son"],
+        "our": ["hour"],
+        "hour": ["our"],
+        "buy": ["by", "bye"],
+        "by": ["buy", "bye"],
+        "bye": ["buy", "by"],
+        
+        # P/B confusions (visually similar on lips)
+        "pat": ["bat"],
+        "bat": ["pat"],
+        "pen": ["ben"],
+        "ben": ["pen"],
+        "pack": ["back"],
+        "back": ["pack"],
+        "pig": ["big"],
+        "big": ["pig"],
+        "park": ["bark"],
+        "bark": ["park"],
+        "pear": ["bear"],
+        "bear": ["pear"],
+        "pull": ["bull"],
+        "bull": ["pull"],
+        
+        # F/V confusions (visually similar on lips)
+        "fan": ["van"],
+        "van": ["fan"],
+        "fine": ["vine"],
+        "vine": ["fine"],
+        "fast": ["vast"],
+        "vast": ["fast"],
+        
+        # M/N confusions (similar lip closure)
+        "mat": ["nat"],
+        "nat": ["mat"],
+        "mine": ["nine"],
+        "nine": ["mine"],
+        
+        # T/D confusions (similar tongue position)
+        "town": ["down"],
+        "down": ["town"],
+        "tie": ["die"],
+        "die": ["tie"],
+        "ten": ["den"],
+        "den": ["ten"],
     }
     
     processed_words = []
     for word in words:
+        # Strip punctuation for matching
         word_lower = word.lower().strip(".,!?;:")
         
         # 15-20% chance to add an error (using 17.5% average)
-        if random.random() < 0.175 and word_lower in error_words:
-            # Replace with error variant
-            error_variant = random.choice(error_words[word_lower])
-            # Preserve original capitalization and punctuation
+        if random.random() < 0.175 and word_lower in confusion_words:
+            # Replace with phonetically similar word
+            confusion_variant = random.choice(confusion_words[word_lower])
+            
+            # Preserve original capitalization
             if word and word[0].isupper():
-                error_variant = error_variant.capitalize()
+                confusion_variant = confusion_variant.capitalize()
+            
             # Add back punctuation
             for punct in ".,!?;:":
                 if word.endswith(punct):
-                    error_variant += punct
+                    confusion_variant += punct
                     break
-            processed_words.append(error_variant)
+            
+            processed_words.append(confusion_variant)
         else:
             processed_words.append(word)
     
