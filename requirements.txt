@@ -1,6 +1,6 @@
 numpy
 tensorflow==2.13.1
-tf-keras==2.13.0
+tf-keras
 ffmpeg-python
 opencv-python-headless
 gdown<6
