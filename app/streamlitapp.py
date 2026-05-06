@@ -304,6 +304,4 @@ st.sidebar.info("""
 - ImageIO
 - NumPy
 - Streamlit
-- Whisper
-- PyTorch
 """)
